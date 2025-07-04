@@ -1,1 +1,492 @@
+import React, { useState, useEffect } from 'react';
+
+// Componente principal da aplicação
+const App = () => {
+    // Estado para gerenciar a prontidão da UI
+    const [isAppReady, setIsAppReady] = useState(false);
+
+    // Simular a prontidão da aplicação
+    useEffect(() => {
+        setIsAppReady(true);
+    }, []);
+
+    // Dados da "Carteira Conservadora" (atualizados com base no último upload e instrução)
+    const carteiraConservadora = { // Renomeado para carteiraConservadora
+        rentabilidadeAnualizada: '12,85%',
+        volatilidadeAnualizada: '0,08%',
+        desempenhoCDI: '113,51%',
+        // Composição atualizada com base na imagem mais recente fornecida (image_7f4a2e.png)
+        composicao: [
+            { tipo: 'Retorno Absoluto', percentual: '12.85%' },
+            { tipo: 'Pós-fixado', percentual: '30.46%' },
+            { tipo: 'Inflação', percentual: '16.00%' },
+            { tipo: 'Prefixado', percentual: '40.69%' },
+        ],
+        // Ativos detalhados da carteira Conservadora, conforme lista fornecida pelo usuário
+        ativosDetalhados: {
+            'Pós-fixado': [
+                'LCI - Banco Inter - 96.0%CDI (0,21% Mês, 6,37% Ano, 11,67% Período)',
+                'LCI - Banco Inter - 96.25%CDI (0,21% Mês, 6,39% Ano, 11,70% Período)',
+                'CDB - Picpay - 115.24%CDI (0,25% Mês, 7,69% Ano, 14,17% Período)',
+            ],
+            'Inflação': [
+                'CDB - Banco C6 - IPCA+ 7.15% (0,11% Mês, 6,72% Ano, 12,85% Período)',
+                'CDB - Banco Daycoval - IPCA+ 7.2% (0,11% Mês, 6,75% Ano, 12,90% Período)',
+                'CDB - Paraná Banco - IPCA+ 7.35% (0,11% Mês, 6,82% Ano, 13,06% Período)',
+            ],
+            'Prefixado': [
+                'CDB - Andbank - PRE 14.0% (0,21% Mês, 6,77% Ano, 14,00% Período)',
+                'CDB - Picpay - PRE 19.5% (0,28% Mês, 9,32% Ano, 19,50% Período)',
+                'CDB - Andbank - PRE 13.5% (0,20% Mês, 6,54% Ano, 13,50% Período)',
+                'CDB - Picpay - PRE 14.0% (0,21% Mês, 6,77% Ano, 14,00% Período)',
+            ],
+            'Retorno Absoluto': [
+                'CLASSE ÚNICA DO WESTERN ASSET TOTAL CREDIT ADVISORY FI EM COTAS DE FI FINANCEIRO RF CP RESP. LTDA (0,04% Mês, 7,09% Ano, 12,79% Período)',
+            ],
+        }
+    };
+
+    // Dados conceituais para a "Nova Carteira" - ATUALIZADOS CONFORME SOLICITADO
+    const novaCarteira = {
+        rentabilidadeAnualizadaPotencial: 'Busca por Maior Eficiência e Crescimento',
+        volatilidadePotencial: 'Potencialmente Moderada a Alta',
+        desempenhoCDIPotencial: 'Alvo Superior ao CDI',
+        composicaoConceitual: [
+            { tipo: 'Pós-fixado', percentual: '35%' },
+            { tipo: 'Inflação', percentual: '16.41%' }, // Atualizado
+            { tipo: 'Prefixado', percentual: '16.41%' }, // Atualizado
+            { tipo: 'Renda Variável', percentual: '11.76%' },
+            { tipo: 'Alternativo', percentual: '20.42%' },
+        ],
+        // Ativos conceituais para a "Nova Carteira" - ATUALIZADOS PARA REFLETIR A NOVA COMPOSIÇÃO
+        ativosDetalhados: {
+            'Pós-fixado': [
+                'Títulos pós-fixados estratégicos (ex: LCI, CDBs com taxas otimizadas)',
+            ],
+            'Inflação': [
+                'NTNB 65', // Ativo de inflação atualizado
+            ],
+            'Prefixado': [
+                'Títulos prefixados estratégicos (ex: CDBs, Tesouro Prefixado)',
+            ],
+            'Renda Variável': [
+                'Fundo Imobiliário STYI11 - VISTA SAMBA AQUI (Projeção de 19% a 22% ao ano de dividendos)',
+                'ETFs de mercados emergentes e desenvolvidos',
+                'Ações de empresas de tecnologia e inovação (crescimento global)',
+                'Fundos de ações internacionais com gestão ativa',
+            ],
+            'Alternativo': [
+                'Fundos de Private Equity/Venture Capital (conceitual)',
+                'Investimentos em infraestrutura (conceitual)',
+                'Fundos multimercado com estratégias flexíveis e gestão ativa',
+                'Fundos que buscam retornos absolutos em diferentes cenários de mercado',
+            ],
+        }
+    };
+
+    // Dados de projeção conceitual (não é projeção financeira real)
+    const projectionData = [
+        { year: 'Ano 1', moderado: 12.85, nova: 20.0 }, // Ajustado para a nova rentabilidade moderada
+        { year: 'Ano 2', moderado: 25.70, nova: 45.0 },
+        { year: 'Ano 3', moderado: 38.55, nova: 75.0 },
+        { year: 'Ano 4', moderado: 51.40, nova: 110.0 },
+        { year: 'Ano 5', moderado: 64.25, nova: 160.0 },
+    ];
+
+    // Função para renderizar uma barra simples para composição (simulando um semi-círculo)
+    const renderCompositionBar = (composition, isNewCarteira = false) => (
+        <div className="flex w-full h-6 rounded-full overflow-hidden shadow-inner">
+            {composition.map((item, index) => (
+                <div
+                    key={index}
+                    className={`h-full flex items-center justify-center text-xs font-semibold text-white ${
+                        isNewCarteira
+                            ? (index % 4 === 0 ? 'bg-gray-700' : // Darker gray for new carteira
+                               index % 4 === 1 ? 'bg-gray-600' :
+                               index % 4 === 2 ? 'bg-gray-500' :
+                               'bg-gray-400')
+                            : (index % 4 === 0 ? 'bg-blue-600' : // Original blue tones for current carteira
+                               index % 4 === 1 ? 'bg-green-600' :
+                               index % 4 === 2 ? 'bg-purple-600' :
+                               'bg-yellow-600')
+                    }`}
+                    style={{ width: item.percentual }}
+                    title={`${item.tipo}: ${item.percentual}`}
+                >
+                    {/* Exibir porcentagem apenas se for grande o suficiente para ser legível */}
+                    {parseFloat(item.percentual) > 10 && item.percentual}
+                </div>
+            ))}
+        </div>
+    );
+
+    // Componente para renderizar o gráfico de composição (semi-círculo simulado)
+    const CompositionChart = ({ data, title, isNewCarteira = false }) => {
+        const colors = isNewCarteira
+            ? ['bg-gray-700', 'bg-gray-600', 'bg-gray-500', 'bg-gray-400', 'bg-gray-300']
+            : ['bg-blue-600', 'bg-green-600', 'bg-purple-600', 'bg-yellow-600', 'bg-red-600'];
+
+        // Calcular o total para garantir que as porcentagens somem 100% para o gráfico
+        const totalPercentage = data.reduce((sum, item) => sum + parseFloat(item.percentual), 0);
+
+        return (
+            <div className="flex flex-col items-center p-4 bg-gray-700 rounded-lg shadow-md h-full">
+                <h3 className="font-bold text-lg text-gray-100 mb-4 text-center">{title}</h3>
+                <div className="relative w-48 h-24 overflow-hidden rounded-t-full">
+                    <div className="absolute inset-0 flex">
+                        {data.map((item, index) => {
+                            const percentage = (parseFloat(item.percentual) / totalPercentage) * 100;
+                            return (
+                                <div
+                                    key={index}
+                                    className={`h-full ${colors[index % colors.length]}`}
+                                    style={{ width: `${percentage}%` }}
+                                    title={`${item.tipo}: ${item.percentual}`}
+                                ></div>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div className="flex flex-wrap justify-center mt-4 text-sm">
+                    {data.map((item, index) => (
+                        <div key={index} className="flex items-center mr-4 mb-2">
+                            <span className={`w-3 h-3 rounded-full ${colors[index % colors.length].replace('bg-', 'bg-')}`}></span>
+                            <span className="ml-2 text-gray-300">{item.tipo}: {item.percentual}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+
+    // Gráfico de barras simples para projeção conceitual
+    const renderProjectionChart = (data) => (
+        <div className="flex flex-col items-center w-full max-w-2xl mx-auto mt-8 p-4 bg-black rounded-lg shadow-lg">
+            <h3 className="font-bold text-xl mb-4 text-white">Projeção Conceitual de Crescimento (5 Anos)</h3>
+            <p className="text-sm text-gray-400 mb-6 text-center">
+                *Esta é uma projeção ilustrativa baseada em rentabilidades passadas e potenciais de otimização.
+                **Rentabilidade passada não é garantia de rentabilidade futura.**
+            </p>
+            <div className="flex justify-around w-full items-end h-64 border-b border-l border-gray-700 pb-2">
+                {data.map((d, index) => (
+                    <div key={index} className="flex flex-col items-center mx-2">
+                        <div className="relative flex items-end h-full">
+                            {/* Barra para Carteira Conservadora */}
+                            <div
+                                className="w-8 bg-blue-500 rounded-t-md shadow-md mr-1 transform transition-all duration-500 ease-out hover:scale-105"
+                                style={{ height: `${d.moderado * 2}px`, maxHeight: '100%' }}
+                                title={`Conservadora: ${d.moderado.toFixed(2)}%`}
+                            >
+                                <span className="absolute -top-6 text-xs font-semibold text-blue-300">{d.moderado.toFixed(1)}%</span>
+                            </div>
+                            {/* Barra para Nova Carteira */}
+                            <div
+                                className="w-8 bg-gray-600 rounded-t-md shadow-md ml-1 transform transition-all duration-500 ease-out hover:scale-105"
+                                style={{ height: `${d.nova * 2}px`, maxHeight: '100%' }}
+                                title={`Nova Carteira: ${d.nova.toFixed(2)}%`}
+                            >
+                                <span className="absolute -top-6 text-xs font-semibold text-gray-300">{d.nova.toFixed(1)}%</span>
+                            </div>
+                        </div>
+                        <span className="mt-2 text-sm font-medium text-gray-300">{d.year}</span>
+                    </div>
+                ))}
+            </div>
+            <div className="flex justify-center mt-4 text-sm font-medium">
+                <div className="flex items-center mr-4">
+                    <span className="w-4 h-4 bg-blue-500 rounded-sm mr-2"></span>
+                    <span className="text-gray-300">Carteira Conservadora</span>
+                </div>
+                <div className="flex items-center">
+                    <span className="w-4 h-4 bg-gray-600 rounded-sm mr-2"></span>
+                    <span className="text-gray-300">Nova Carteira (Potencial)</span>
+                </div>
+            </div>
+        </div>
+    );
+
+
+    if (!isAppReady) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-900">
+                <div className="text-lg font-semibold text-gray-300">Carregando...</div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-900 font-inter text-gray-200 p-4 sm:p-8 flex flex-col items-center">
+            <script src="https://cdn.tailwindcss.com"></script>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+            <div className="w-full max-w-4xl bg-black rounded-xl shadow-2xl p-6 sm:p-10 mb-8">
+                {/* Cabeçalho com Logo */}
+                <header className="flex flex-col sm:flex-row items-center justify-center sm:justify-start mb-8">
+                    <div className="flex flex-col items-center sm:items-start mb-4 sm:mb-0 sm:mr-6">
+                        <img
+                            src="https://vistainvest.com.br/wp-content/uploads/2023/09/Grupo-7.svg"
+                            alt="Logo Vista Investimentos"
+                            className="h-16 sm:h-20"
+                            onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/150x50/333333/cccccc?text=Logo+Vista"; }}
+                        />
+                    </div>
+                    <div className="text-center sm:text-left">
+                        <h1 className="text-3xl sm:text-4xl font-bold text-gray-100 mb-2">
+                            Análise e Perspectivas de Portfólios de Investimento
+                        </h1>
+                        <p className="text-lg text-gray-400">
+                            Uma jornada estratégica para o seu futuro financeiro nos próximos 5 anos.
+                        </p>
+                    </div>
+                </header>
+
+                {/* Seção 1: Compreendendo a Carteira Atual - Conservadora */}
+                <div className="mb-10 p-6 bg-gray-800 rounded-lg shadow-inner">
+                    <h2 className="text-2xl font-semibold text-gray-100 mb-4">
+                        1. Compreendendo a Carteira Atual: Conservadora
+                    </h2>
+                    <p className="text-gray-300 mb-4">
+                        A carteira Conservadora de Henrique é uma alocação conservadora, focada em estabilidade, e apresentou um resultado anualizado de **12,85%** no período de 01/07/2024 a 01/07/2025.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div className="bg-gray-700 p-4 rounded-lg shadow-md">
+                            <h3 className="font-bold text-lg text-gray-100">Desempenho (Período Analisado)</h3>
+                            <ul className="list-disc list-inside mt-2 text-gray-300">
+                                <li>Rentabilidade anualizada estimada: <span className="font-semibold text-green-400">{carteiraConservadora.rentabilidadeAnualizada}</span></li>
+                                <li>Volatilidade anualizada estimada: <span className="font-semibold text-yellow-400">{carteiraConservadora.volatilidadeAnualizada}</span></li>
+                                <li>Desempenho em relação ao CDI: <span className="font-semibold text-purple-400">{carteiraConservadora.desempenhoCDI}</span></li>
+                            </ul>
+                        </div>
+                        <div className="bg-gray-700 p-4 rounded-lg shadow-md">
+                            <h3 className="font-bold text-lg text-gray-100">Composição Principal</h3>
+                            <div className="mt-2">
+                                {/* Gráfico de Composição para Carteira Conservadora */}
+                                <CompositionChart
+                                    data={carteiraConservadora.composicao}
+                                    title="Composição da Carteira Conservadora"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Detalhes dos Ativos da Carteira Atual */}
+                    <div className="p-4 bg-gray-700 rounded-lg shadow-md border-l-4 border-blue-500 mt-6">
+                        <h3 className="font-bold text-lg text-blue-400 mb-2">Ativos da Carteira Atual:</h3>
+                        {Object.entries(carteiraConservadora.ativosDetalhados).map(([categoria, ativos], index) => (
+                            <div key={index} className="mb-3">
+                                <h4 className="font-semibold text-gray-200">{categoria}:</h4>
+                                <ul className="list-disc list-inside text-gray-300 ml-4">
+                                    {ativos.map((ativo, idx) => (
+                                        <li key={idx} className="text-sm">{ativo}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Reflexão sobre a Carteira Atual */}
+                    <div className="p-4 bg-gray-700 rounded-lg shadow-md border-l-4 border-blue-500 mt-6">
+                        <p className="text-gray-300">
+                            Considerando os objetivos financeiros para os próximos 5 anos, a alocação atual da Carteira Conservadora está totalmente alinhada com suas expectativas de crescimento e tolerância a risco em um horizonte de médio prazo?
+                        </p>
+                        <p className="text-gray-300 mt-2">
+                            A manutenção da estrutura atual pode impactar a capacidade de aproveitar potenciais ciclos de alta em outras classes de ativos ou de se proteger de cenários de maior volatilidade que podem surgir nos próximos 5 anos?
+                        </p>
+                    </div>
+                </div>
+
+                {/* Seção 2: Cenário Econômico Atual */}
+                <div className="mb-10 p-6 bg-gray-800 rounded-lg shadow-inner">
+                    <h2 className="text-2xl font-semibold text-gray-100 mb-4">
+                        2. O Cenário Econômico Atual e Seus Impactos
+                    </h2>
+                    <p className="text-gray-300 mb-4">
+                        A performance dos investimentos é intrinsecamente ligada ao ambiente macroeconômico. Fatores chave incluem:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-300">
+                        <div className="flex items-center bg-gray-700 p-3 rounded-lg shadow-sm">
+                            <span className="text-blue-400 text-2xl mr-3">&#x1F4B8;</span>
+                            <div>
+                                <h4 className="font-semibold">Taxas de Juros</h4>
+                                <p className="text-sm">Influenciam renda fixa e custo de capital.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center bg-gray-700 p-3 rounded-lg shadow-sm">
+                            <span className="text-red-400 text-2xl mr-3">&#x1F4C8;</span>
+                            <div>
+                                <h4 className="font-semibold">Inflação</h4>
+                                <p className="text-sm">Afeta o poder de compra dos retornos.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center bg-gray-700 p-3 rounded-lg shadow-sm">
+                            <span className="text-green-400 text-2xl mr-3">&#x1F30D;</span>
+                            <div>
+                                <h4 className="font-semibold">Crescimento Econômico</h4>
+                                <p className="text-sm">Impulsiona o mercado de ações e setores.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center bg-gray-700 p-3 rounded-lg shadow-sm">
+                            <span className="text-purple-400 text-2xl mr-3">&#x1F30E;</span>
+                            <div>
+                                <h4 className="font-semibold">Mercado Global</h4>
+                                <p className="text-sm">Eventos externos geram volatilidade e oportunidades.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p className="text-gray-300 mt-4">
+                        A eficiência das alocações reside em como elas se posicionam frente a esses fatores, buscando um equilíbrio entre proteção e potencial de valorização.
+                    </p>
+                </div>
+
+                {/* Seção 3: Explorando Novas Possibilidades - A Proposta de Otimização */}
+                <div className="mb-10 p-6 bg-gray-800 rounded-lg shadow-inner">
+                    <h2 className="text-2xl font-semibold text-gray-100 mb-4">
+                        3. Explorando Novas Possibilidades: A Proposta de Otimização
+                    </h2>
+                    <p className="text-gray-300 mb-4">
+                        A "Nova Carteira" é uma proposta de otimização, buscando maior eficiência e alinhamento com o cenário econômico global. A estratégia envolve a **realocação de fundos de liquidez existentes** e a **alocação gradual conforme os vencimentos** dos ativos atuais.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div className="bg-gray-700 p-4 rounded-lg shadow-md">
+                            <h3 className="font-bold text-lg text-gray-100">Potencial de Desempenho</h3>
+                            <ul className="list-disc list-inside mt-2 text-gray-300">
+                                <li>Rentabilidade anualizada potencial: <span className="font-semibold text-green-400">{novaCarteira.rentabilidadeAnualizadaPotencial}</span></li>
+                                <li>Volatilidade potencial: <span className="font-semibold text-yellow-400">{novaCarteira.volatilidadePotencial}</span></li>
+                                <li>Alvo de desempenho em relação ao CDI: <span className="font-semibold text-purple-400">{novaCarteira.desempenhoCDIPotencial}</span></li>
+                            </ul>
+                        </div>
+                        <div className="bg-gray-700 p-4 rounded-lg shadow-md">
+                            <h3 className="font-bold text-lg text-gray-100">Composição Conceitual</h3>
+                            <div className="mt-2">
+                                {/* Gráfico de Composição para Nova Carteira */}
+                                <CompositionChart
+                                    data={novaCarteira.composicaoConceitual}
+                                    title="Composição Conceitual da Nova Carteira"
+                                    isNewCarteira={true}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Detalhes dos Ativos da Nova Carteira */}
+                    <div className="p-4 bg-gray-700 rounded-lg shadow-md border-l-4 border-gray-600 mt-6">
+                        <h3 className="font-bold text-lg text-gray-400 mb-2">Ativos Conceituais da Nova Carteira:</h3>
+                        {Object.entries(novaCarteira.ativosDetalhados).map(([categoria, ativos], index) => (
+                            <div key={index} className="mb-3">
+                                <h4 className="font-semibold text-gray-200">{categoria}:</h4>
+                                <ul className="list-disc list-inside text-gray-300 ml-4">
+                                    {ativos.map((ativo, idx) => (
+                                        <li key={idx} className="text-sm">{ativo}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="p-4 bg-gray-700 rounded-lg shadow-md border-l-4 border-gray-600 mt-6">
+                        <h3 className="font-bold text-lg text-gray-400 mb-2">Destaque: Fundo Imobiliário STYI11 - VISTA SAMBA AQUI</h3>
+                        <p className="text-gray-300 mb-2">
+                            A Nova Carteira incorpora ativos com alto potencial de valorização e dividendos, como o Fundo Imobiliário STYI11 - VISTA SAMBA AQUI. Este fundo, com a gestora atuando como *market maker*, é um empreendimento de alto luxo com o hotel previsto para ficar pronto em março e 2 meses de *soft open* com a Transamérica.
+                        </p>
+                        <ul className="list-disc list-inside text-gray-300 ml-4">
+                            <li>Projeção de pagar entre 19% e 22% ao ano de dividendos.</li>
+                        </ul>
+                        <p className="text-gray-300 mt-2 font-semibold">
+                            A inclusão de ativos com este perfil estratégico é um dos pilares da maior eficiência projetada para a Nova Carteira, buscando retornos atrativos em um horizonte de médio a longo prazo.
+                        </p>
+                    </div>
+
+                    {/* Benefícios da Otimização da Alocação */}
+                    <div className="p-4 bg-gray-700 rounded-lg shadow-md border-l-4 border-gray-500 mt-6">
+                        <h3 className="font-bold text-lg text-gray-300 mb-2">Benefícios da Otimização da Alocação:</h3>
+                        <p className="text-gray-300 mb-2">
+                            Uma alocação estratégica pode oferecer um caminho para otimizar o binômio risco-retorno:
+                        </p>
+                        <ul className="list-disc list-inside text-gray-300">
+                            <li>Buscar **maior eficiência** diversificando em classes de ativos com potencial de valorização.</li>
+                            <li>Ajustar pesos entre renda fixa e renda variável, incluir ativos com diferentes correlações.</li>
+                            <li>Explorar novas geografias e setores para alinhar o portfólio aos horizontes e expectativas de retorno.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {/* Seção 4: Projeção Conceitual para os Próximos 5 Anos */}
+                <div className="mb-10 p-6 bg-gray-800 rounded-lg shadow-inner">
+                    <h2 className="text-2xl font-semibold text-gray-100 mb-4">
+                        4. Projeção para os Próximos 5 Anos: Um Esboço Conceitual
+                    </h2>
+                    <p className="text-gray-300 mb-4">
+                        É fundamental reiterar que **não é possível fazer projeções financeiras precisas e garantidas para o futuro**. A rentabilidade passada serve apenas como referência. A performance futura será influenciada por:
+                    </p>
+                    <ul className="list-disc list-inside text-gray-300 mb-6">
+                        <li>Dinâmica das Taxas de Juros</li>
+                        <li>Controle da Inflação</li>
+                        <li>Crescimento Econômico Sustentado</li>
+                        <li>Eventos Inesperados (crises, políticas, etc.)</li>
+                    </ul>
+
+                    {renderProjectionChart(projectionData)}
+
+                    <div className="mt-8 p-4 bg-gray-700 rounded-lg shadow-md border-l-4 border-gray-500">
+                        <h3 className="font-bold text-lg text-gray-300 mb-2">Comparação Conceitual:</h3>
+                        <ul className="list-disc list-inside text-gray-300">
+                            <li>
+                                **Carteira Conservadora (Atual):** Tenderia a replicar um desempenho similar ao passado, com foco na estabilidade da renda fixa. Sua capacidade de capturar grandes altas em ciclos de mercado pode ser limitada pela alocação mais conservadora.
+                            </li>
+                            <li>
+                                **A Nova Carteira (Potencial Otimização):** Se incorpora uma alocação mais estratégica (ex: maior exposição a crescimento, ativos internacionais, como o STYI11), *poderia* ter um potencial de retorno maior em cenários favoráveis, mas também *poderia* apresentar maior volatilidade.
+                            </li>
+                        </ul>
+                        <p className="text-gray-300 mt-4 font-semibold">
+                            A chave para os próximos 5 anos não é apenas a rentabilidade passada, mas a **adaptabilidade e a estratégia** da carteira em um ambiente econômico em constante evolução.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Seção 5: Comparativo Detalhado das Carteiras */}
+                <div className="mb-10 p-6 bg-gray-800 rounded-lg shadow-inner">
+                    <h2 className="text-2xl font-semibold text-gray-100 mb-4">
+                        5. Comparativo Detalhado das Carteiras
+                    </h2>
+                    <p className="text-gray-300 mb-6">
+                        A seguir, um comparativo das características e potenciais de cada carteira, considerando o cenário econômico global.
+                    </p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Coluna da Carteira Conservadora */}
+                        <div className="bg-gray-700 p-6 rounded-lg shadow-lg border-t-4 border-blue-500">
+                            <h3 className="text-xl font-bold text-blue-400 mb-4">Carteira Conservadora (Atual)</h3>
+                            <ul className="list-disc list-inside text-gray-300 space-y-2">
+                                <li>**Perfil de Risco:** Mais Conservador.</li>
+                                <li>**Foco:** Estabilidade, proteção de capital, retornos consistentes com baixa volatilidade.</li>
+                                <li>**Composição:** Predominantemente renda fixa (prefixada, pós-fixada, inflação) e fundos de retorno absoluto.</li>
+                                <li>**Adaptabilidade ao Cenário Atual:** Boa para cenários de juros altos e inflação controlada, mas pode ter menor potencial de ganho em ciclos de crescimento mais robustos.</li>
+                                <li>**Estratégia de Alocação:** Manutenção da estrutura atual.</li>
+                                <li>**Potencial de Eficiência:** Eficiente para seu perfil de risco, mas com menor agilidade para capturar novas oportunidades.</li>
+                            </ul>
+                        </div>
+
+                        {/* Coluna da Nova Carteira */}
+                        <div className="bg-gray-700 p-6 rounded-lg shadow-lg border-t-4 border-gray-600">
+                            <h3 className="text-xl font-bold text-gray-400 mb-4">Nova Carteira (Proposta de Otimização)</h3>
+                            <ul className="list-disc list-inside text-gray-300 space-y-2">
+                                <li>**Perfil de Risco:** Potencialmente Moderado a Agressivo (dependendo da alocação exata).</li>
+                                <li>**Foco:** Otimização de retorno, aproveitamento de tendências globais, diversificação estratégica, com destaque para ativos de alto potencial como o STYI11.</li>
+                                <li>**Composição:** Conceitualmente inclui maior exposição a renda variável global, ativos alternativos (como FIIs de alto potencial), renda fixa estruturada e fundos multimercado dinâmicos.</li>
+                                <li>**Adaptabilidade ao Cenário Atual:** Mais adaptável a um cenário econômico global dinâmico, buscando capturar oportunidades em diferentes mercados e setores, impulsionada por ativos com características únicas como o STYI11.</li>
+                                <li>**Estratégia de Alocação:** Realocação de fundos de liquidez existentes e alocação gradual conforme vencimentos.</li>
+                                <li>**Potencial de Eficiência:** Tendência a ser mais eficiente, mesmo com maior volatilidade, devido à alocação estratégica em ativos com potencial de crescimento e dividendos elevados em um cenário global.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p className="text-gray-300 mt-6 text-center font-semibold text-lg">
+                        De acordo com o cenário econômico global, a Nova Carteira tem a tendência de ser mais eficiente, mesmo contendo mais volatilidade. Os ativos da primeira carteira serão realocados, e conforme os vencimentos forem aparecendo, a alocação será direcionada para a Nova Carteira.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default App;
 
